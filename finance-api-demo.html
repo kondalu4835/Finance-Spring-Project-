@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Dashboard API — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d47;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --dim: #334155;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Grid background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .header-url {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding: 0 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--surface); border-color: var(--border); }
+  .nav-item.active { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--accent); }
+
+  .nav-method {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    width: 40px;
+    text-align: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .method-get  { background: rgba(16,185,129,0.15);  color: var(--green); }
+  .method-post { background: rgba(59,130,246,0.15);  color: var(--accent); }
+  .method-patch{ background: rgba(245,158,11,0.15);  color: var(--amber); }
+  .method-del  { background: rgba(239,68,68,0.15);   color: var(--red); }
+
+  .nav-path {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-item.active .nav-path { color: var(--text); }
+
+  /* ── Main ── */
+  main {
+    padding: 32px;
+    max-width: 900px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    margin-bottom: 40px;
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .hero-subtitle { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
+
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+  }
+
+  .tag-blue   { color: var(--accent);  border-color: rgba(59,130,246,0.3);  background: rgba(59,130,246,0.08); }
+  .tag-green  { color: var(--green);   border-color: rgba(16,185,129,0.3);  background: rgba(16,185,129,0.08); }
+  .tag-cyan   { color: var(--accent2); border-color: rgba(6,182,212,0.3);   background: rgba(6,182,212,0.08); }
+  .tag-purple { color: var(--purple);  border-color: rgba(139,92,246,0.3);  background: rgba(139,92,246,0.08); }
+  .tag-amber  { color: var(--amber);   border-color: rgba(245,158,11,0.3);  background: rgba(245,158,11,0.08); }
+
+  /* ── Auth box ── */
+  .auth-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .auth-box-title {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .creds-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .cred-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .cred-role {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .role-admin   { color: var(--red); }
+  .role-analyst { color: var(--accent2); }
+  .role-viewer  { color: var(--green); }
+
+  .cred-email   { font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 2px; }
+  .cred-pass    { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ── Section headings ── */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-heading h2 {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .section-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  /* ── Endpoint cards ── */
+  .endpoint-group { margin-bottom: 40px; }
+
+  .endpoint-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .endpoint-card:hover { border-color: var(--dim); }
+  .endpoint-card.open  { border-color: var(--accent); }
+
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .method-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    width: 52px;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge-get    { background: rgba(16,185,129,0.12);  color: var(--green);  border: 1px solid rgba(16,185,129,0.3); }
+  .badge-post   { background: rgba(59,130,246,0.12);  color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-patch  { background: rgba(245,158,11,0.12);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.3); }
+  .badge-delete { background: rgba(239,68,68,0.12);   color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+
+  .endpoint-path {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .endpoint-summary {
+    font-size: 12px;
+    color: var(--muted);
+    flex: 2;
+    text-align: right;
+  }
+
+  .endpoint-chevron {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .open .endpoint-chevron { transform: rotate(180deg); }
+
+  /* Role badges */
+  .role-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .rb-admin    { background: rgba(239,68,68,0.12);    color: var(--red);    border: 1px solid rgba(239,68,68,0.25); }
+  .rb-any      { background: rgba(16,185,129,0.12);   color: var(--green);  border: 1px solid rgba(16,185,129,0.25); }
+  .rb-public   { background: rgba(100,116,139,0.15);  color: #94a3b8;       border: 1px solid rgba(100,116,139,0.3); }
+
+  /* ── Endpoint body ── */
+  .endpoint-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .open .endpoint-body { display: block; }
+
+  .body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .body-section { margin-bottom: 16px; }
+  .body-section:last-child { margin-bottom: 0; }
+
+  .body-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .copy-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: var(--dim); }
+  .copy-btn.copied { color: var(--green); border-color: rgba(16,185,129,0.4); }
+
+  pre {
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .k  { color: var(--accent2); }
+  .s  { color: var(--green); }
+  .n  { color: var(--purple); }
+  .c  { color: var(--muted); font-style: italic; }
+  .v  { color: var(--amber); }
+
+  /* ── Params table ── */
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .params-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .params-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    font-size: 12px;
+    vertical-align: top;
+  }
+
+  .params-table tr:last-child td { border-bottom: none; }
+
+  .param-name { font-family: var(--mono); color: var(--accent); font-size: 12px; }
+  .param-type { font-family: var(--mono); color: var(--purple); font-size: 11px; }
+  .param-req  { color: var(--red); font-family: var(--mono); font-size: 10px; }
+  .param-opt  { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+
+  /* ── Response status ── */
+  .response-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+  }
+
+  .response-row:last-child { border-bottom: none; }
+
+  .status-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  .s200 { color: var(--green); }
+  .s201 { color: var(--accent2); }
+  .s400 { color: var(--amber); }
+  .s401 { color: var(--red); }
+  .s403 { color: var(--red); }
+  .s404 { color: var(--amber); }
+
+  .response-desc { font-size: 12px; color: var(--muted); }
+
+  /* ── How to use ── */
+  .how-to-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+
+  .how-to-title {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .step-text code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .step-text strong { color: var(--text); font-weight: 500; }
+
+  /* ── Stack info ── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .stack-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stack-name { font-family: var(--display); font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .stack-ver  { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  /* ── Roles table ── */
+  .roles-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 32px;
+  }
+
+  .roles-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .roles-table td {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .roles-table tr:nth-child(even) td { background: rgba(17,24,39,0.5); }
+
+  .check { color: var(--green); font-size: 14px; }
+  .cross { color: var(--dim);   font-size: 14px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+  /* ── Animations ── */
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeSlide 0.4s ease both; }
+  .endpoint-group:nth-child(1) { animation: fadeSlide 0.4s 0.05s ease both; }
+  .endpoint-group:nth-child(2) { animation: fadeSlide 0.4s 0.10s ease both; }
+  .endpoint-group:nth-child(3) { animation: fadeSlide 0.4s 0.15s ease both; }
+  .endpoint-group:nth-child(4) { animation: fadeSlide 0.4s 0.20s ease both; }
+
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { display: none; }
+    .body-grid { grid-template-columns: 1fr; }
+    .creds-grid { grid-template-columns: 1fr; }
+    .stack-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">💰</div>
+    Finance Dashboard API
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+    <div class="header-url">finance-spring-project.onrender.com</div>
+  </div>
+</header>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Authentication</div>
+      <div class="nav-item" onclick="scrollTo('auth')">
+        <span class="nav-method method-post">POST</span>
+        <span class="nav-path">/api/auth/login</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('auth')">
+        <span class="nav-method method-post">POST</span>
+        <span class="nav-path">/api/auth/register</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('auth')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/auth/me</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Financial Records</div>
+      <div class="nav-item" onclick="scrollTo('records')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/records</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('records')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/records/{id}</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('records')">
+        <span class="nav-method method-post">POST</span>
+        <span class="nav-path">/api/records</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('records')">
+        <span class="nav-method method-patch">PATCH</span>
+        <span class="nav-path">/api/records/{id}</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('records')">
+        <span class="nav-method method-del">DEL</span>
+        <span class="nav-path">/api/records/{id}</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Dashboard</div>
+      <div class="nav-item" onclick="scrollTo('dashboard')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/dashboard/summary</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('dashboard')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/dashboard/categories</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('dashboard')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/trends/monthly</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('dashboard')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/trends/weekly</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('dashboard')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/dashboard/recent</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Users & Health</div>
+      <div class="nav-item" onclick="scrollTo('users')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/api/users</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('users')">
+        <span class="nav-method method-post">POST</span>
+        <span class="nav-path">/api/users</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('users')">
+        <span class="nav-method method-patch">PATCH</span>
+        <span class="nav-path">/api/users/{id}</span>
+      </div>
+      <div class="nav-item" onclick="scrollTo('users')">
+        <span class="nav-method method-get">GET</span>
+        <span class="nav-path">/health</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- ── HERO ── -->
+    <div class="hero">
+      <div class="hero-title">Finance Dashboard API <span style="color:var(--muted);font-weight:400">v1.0.0</span></div>
+      <div class="hero-subtitle">A complete REST API backend for a finance dashboard system with JWT authentication, role-based access control, financial records management, and analytics endpoints.</div>
+      <div class="hero-tags">
+        <span class="tag tag-blue">Spring Boot 3.2.3</span>
+        <span class="tag tag-cyan">Java 17</span>
+        <span class="tag tag-green">JWT Auth</span>
+        <span class="tag tag-purple">Spring Security</span>
+        <span class="tag tag-amber">H2 Database</span>
+        <span class="tag tag-blue">JPA / Hibernate</span>
+        <span class="tag tag-cyan">Swagger / OpenAPI</span>
+        <span class="tag tag-green">Docker</span>
+        <span class="tag tag-purple">Render Deployed</span>
+      </div>
+      <div class="auth-box">
+        <div class="auth-box-title">🔑 Default Test Credentials — seeded on startup</div>
+        <div class="creds-grid">
+          <div class="cred-card">
+            <div class="cred-role role-admin">● ADMIN</div>
+            <div class="cred-email">admin@finance.dev</div>
+            <div class="cred-pass">Admin@1234</div>
+          </div>
+          <div class="cred-card">
+            <div class="cred-role role-analyst">● ANALYST</div>
+            <div class="cred-email">analyst@finance.dev</div>
+            <div class="cred-pass">Analyst@1234</div>
+          </div>
+          <div class="cred-card">
+            <div class="cred-role role-viewer">● VIEWER</div>
+            <div class="cred-email">viewer@finance.dev</div>
+            <div class="cred-pass">Viewer@1234</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HOW TO USE ── -->
+    <div class="how-to-box">
+      <div class="how-to-title">⚡ How to Use This API</div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Login</strong> — POST to <code>/api/auth/login</code> with email + password. Get back a <code>token</code> string.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Authorize</strong> — Add header <code>Authorization: Bearer &lt;token&gt;</code> to all protected requests. In live Swagger: click the 🔒 <em>Authorize</em> button and paste the token.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Explore endpoints</strong> — <code>GET /api/dashboard/summary</code> to see totals. <code>GET /api/records</code> to browse financial data with filters. Admin credentials unlock record/user management.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Live Swagger UI</strong> → <code>https://finance-spring-project.onrender.com/swagger-ui.html</code> — try every endpoint interactively in the browser with no setup required.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TECH STACK ── -->
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--green)">Spring Boot</div>
+        <div class="stack-ver">3.2.3</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--accent2)">Java</div>
+        <div class="stack-ver">17 (Temurin)</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--purple)">JWT / jjwt</div>
+        <div class="stack-ver">0.12.3</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--amber)">H2 Database</div>
+        <div class="stack-ver">file-based</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--accent)">Hibernate ORM</div>
+        <div class="stack-ver">6.4.4</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--red)">Spring Security</div>
+        <div class="stack-ver">6.2.2</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--green)">SpringDoc OpenAPI</div>
+        <div class="stack-ver">2.3.0</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name" style="color:var(--accent2)">Docker + Render</div>
+        <div class="stack-ver">deployed</div>
+      </div>
+    </div>
+
+    <!-- ── ROLES TABLE ── -->
+    <div class="section-heading" id="roles">
+      <h2>Role-Based Access Control</h2>
+      <span class="section-count">3 roles</span>
+    </div>
+    <table class="roles-table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>VIEWER</th>
+          <th>ANALYST</th>
+          <th>ADMIN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Register / Login</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>View own profile (/me)</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>List & view financial records</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>Dashboard analytics & trends</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>Create financial records</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>Update / delete records</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>List all users</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>Create / update users</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         AUTH ENDPOINTS
+    ══════════════════════════════════════ -->
+    <div class="endpoint-group" id="auth">
+      <div class="section-heading">
+        <h2>Authentication</h2>
+        <span class="section-count">3 endpoints</span>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="endpoint-card" id="ep-login">
+        <div class="endpoint-header" onclick="toggle('ep-login')">
+          <span class="method-badge badge-post">POST</span>
+          <span class="endpoint-path">/api/auth/login</span>
+          <span class="role-badge rb-public">PUBLIC</span>
+          <span class="endpoint-summary">Login and receive JWT token</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Submit email and password. Returns a signed JWT token valid for 8 hours. Use the token in the <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">Authorization: Bearer &lt;token&gt;</code> header for all protected endpoints.</p>
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Request Body</div>
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="copy-btn" onclick="copy(this)">Copy</button>
+                </div>
+                <pre>{
+  <span class="k">"email"</span>: <span class="s">"admin@finance.dev"</span>,
+  <span class="k">"password"</span>: <span class="s">"Admin@1234"</span>
+}</pre>
+              </div>
+            </div>
+            <div>
+              <div class="body-label">Response 200</div>
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="copy-btn" onclick="copy(this)">Copy</button>
+                </div>
+                <pre>{
+  <span class="k">"success"</span>: <span class="v">true</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"token"</span>: <span class="s">"eyJhbGciOi..."</span>,
+    <span class="k">"type"</span>: <span class="s">"Bearer"</span>,
+    <span class="k">"user"</span>: {
+      <span class="k">"id"</span>: <span class="n">1</span>,
+      <span class="k">"name"</span>: <span class="s">"Alice Admin"</span>,
+      <span class="k">"email"</span>: <span class="s">"admin@finance.dev"</span>,
+      <span class="k">"role"</span>: <span class="s">"ADMIN"</span>,
+      <span class="k">"active"</span>: <span class="v">true</span>
+    }
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+          <div class="body-section" style="margin-top:16px;">
+            <div class="body-label">Responses</div>
+            <div class="response-row"><span class="status-code s200">200</span><span class="response-desc">Login successful — returns JWT token and user profile</span></div>
+            <div class="response-row"><span class="status-code s401">401</span><span class="response-desc">Invalid credentials</span></div>
+            <div class="response-row"><span class="status-code s400">400</span><span class="response-desc">Validation error (missing/invalid fields)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="endpoint-card" id="ep-register">
+        <div class="endpoint-header" onclick="toggle('ep-register')">
+          <span class="method-badge badge-post">POST</span>
+          <span class="endpoint-path">/api/auth/register</span>
+          <span class="role-badge rb-public">PUBLIC</span>
+          <span class="endpoint-summary">Register — always gets VIEWER role</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Creates a new user account. Self-registered users always receive the <strong style="color:var(--text)">VIEWER</strong> role. An Admin must use <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">POST /api/users</code> to create accounts with elevated roles.</p>
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Request Body</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>{
+  <span class="k">"name"</span>: <span class="s">"John Doe"</span>,
+  <span class="k">"email"</span>: <span class="s">"john@example.com"</span>,
+  <span class="k">"password"</span>: <span class="s">"Password@123"</span>
+}</pre>
+              </div>
+            </div>
+            <div>
+              <div class="body-label">Validation Rules</div>
+              <table class="params-table">
+                <tr><th>Field</th><th>Rule</th></tr>
+                <tr><td class="param-name">name</td><td style="color:var(--muted);font-size:12px;">Required, not blank</td></tr>
+                <tr><td class="param-name">email</td><td style="color:var(--muted);font-size:12px;">Valid email format, unique</td></tr>
+                <tr><td class="param-name">password</td><td style="color:var(--muted);font-size:12px;">Min 8 characters</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ME -->
+      <div class="endpoint-card" id="ep-me">
+        <div class="endpoint-header" onclick="toggle('ep-me')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/auth/me</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Get current user profile</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Returns the profile of the currently authenticated user based on the JWT token in the Authorization header.</p>
+          <div class="body-label">Response 200</div>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+            <pre>{
+  <span class="k">"success"</span>: <span class="v">true</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"id"</span>: <span class="n">1</span>,
+    <span class="k">"name"</span>: <span class="s">"Alice Admin"</span>,
+    <span class="k">"email"</span>: <span class="s">"admin@finance.dev"</span>,
+    <span class="k">"role"</span>: <span class="s">"ADMIN"</span>,
+    <span class="k">"active"</span>: <span class="v">true</span>,
+    <span class="k">"createdAt"</span>: <span class="s">"2026-04-06T10:30:46"</span>
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         FINANCIAL RECORDS
+    ══════════════════════════════════════ -->
+    <div class="endpoint-group" id="records">
+      <div class="section-heading">
+        <h2>Financial Records</h2>
+        <span class="section-count">5 endpoints</span>
+      </div>
+
+      <!-- LIST -->
+      <div class="endpoint-card" id="ep-list">
+        <div class="endpoint-header" onclick="toggle('ep-list')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/records</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">List records with filters & pagination</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Returns a paginated list of financial records. All filters are optional and can be combined.</p>
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Query Parameters</div>
+              <table class="params-table">
+                <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+                <tr><td class="param-name">type</td><td class="param-type">INCOME | EXPENSE</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">category</td><td class="param-type">string</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">dateFrom</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">dateTo</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">page</td><td class="param-type">integer</td><td class="param-opt">default: 0</td></tr>
+                <tr><td class="param-name">size</td><td class="param-type">integer</td><td class="param-opt">default: 20</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="body-label">Response 200</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>{
+  <span class="k">"success"</span>: <span class="v">true</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"content"</span>: [{
+      <span class="k">"id"</span>: <span class="n">1</span>,
+      <span class="k">"amount"</span>: <span class="n">5000.00</span>,
+      <span class="k">"type"</span>: <span class="s">"INCOME"</span>,
+      <span class="k">"category"</span>: <span class="s">"Salary"</span>,
+      <span class="k">"date"</span>: <span class="s">"2024-04-01"</span>,
+      <span class="k">"notes"</span>: <span class="s">"April salary"</span>
+    }],
+    <span class="k">"page"</span>: <span class="n">0</span>,
+    <span class="k">"size"</span>: <span class="n">20</span>,
+    <span class="k">"totalElements"</span>: <span class="n">42</span>,
+    <span class="k">"totalPages"</span>: <span class="n">3</span>
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GET BY ID -->
+      <div class="endpoint-card" id="ep-getbyid">
+        <div class="endpoint-header" onclick="toggle('ep-getbyid')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/records/{id}</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Get single record by ID</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Path Parameters</div>
+          <table class="params-table" style="margin-bottom:16px;">
+            <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+            <tr><td class="param-name">id</td><td class="param-type">Long</td><td class="param-req">required</td></tr>
+          </table>
+          <div class="body-label">Responses</div>
+          <div class="response-row"><span class="status-code s200">200</span><span class="response-desc">Record found — returns full record object</span></div>
+          <div class="response-row"><span class="status-code s404">404</span><span class="response-desc">Record not found or soft-deleted</span></div>
+        </div>
+      </div>
+
+      <!-- CREATE -->
+      <div class="endpoint-card" id="ep-create">
+        <div class="endpoint-header" onclick="toggle('ep-create')">
+          <span class="method-badge badge-post">POST</span>
+          <span class="endpoint-path">/api/records</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Create a new financial record</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Request Body</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>{
+  <span class="k">"amount"</span>: <span class="n">5000.00</span>,
+  <span class="k">"type"</span>: <span class="s">"INCOME"</span>,
+  <span class="k">"category"</span>: <span class="s">"Salary"</span>,
+  <span class="k">"date"</span>: <span class="s">"2024-06-01"</span>,
+  <span class="k">"notes"</span>: <span class="s">"June salary"</span>
+}</pre>
+              </div>
+            </div>
+            <div>
+              <div class="body-label">Validation Rules</div>
+              <table class="params-table">
+                <tr><th>Field</th><th>Rule</th></tr>
+                <tr><td class="param-name">amount</td><td style="font-size:12px;color:var(--muted)">Required, &gt; 0.01</td></tr>
+                <tr><td class="param-name">type</td><td style="font-size:12px;color:var(--muted)">Required: INCOME or EXPENSE</td></tr>
+                <tr><td class="param-name">category</td><td style="font-size:12px;color:var(--muted)">Required, not blank</td></tr>
+                <tr><td class="param-name">date</td><td style="font-size:12px;color:var(--muted)">Required, ISO date</td></tr>
+                <tr><td class="param-name">notes</td><td style="font-size:12px;color:var(--muted)">Optional, max 1000 chars</td></tr>
+              </table>
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="body-label">Responses</div>
+            <div class="response-row"><span class="status-code s201">201</span><span class="response-desc">Record created successfully</span></div>
+            <div class="response-row"><span class="status-code s403">403</span><span class="response-desc">Forbidden — requires ADMIN role</span></div>
+            <div class="response-row"><span class="status-code s400">400</span><span class="response-desc">Validation failed</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATCH -->
+      <div class="endpoint-card" id="ep-patch">
+        <div class="endpoint-header" onclick="toggle('ep-patch')">
+          <span class="method-badge badge-patch">PATCH</span>
+          <span class="endpoint-path">/api/records/{id}</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Partial update of a record</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Only fields provided in the request body are updated. All fields are optional.</p>
+          <div class="body-label">Request Body (all fields optional)</div>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+            <pre>{
+  <span class="k">"amount"</span>: <span class="n">6000.00</span>,
+  <span class="c">// only update amount, leave other fields unchanged</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELETE -->
+      <div class="endpoint-card" id="ep-delete">
+        <div class="endpoint-header" onclick="toggle('ep-delete')">
+          <span class="method-badge badge-delete">DEL</span>
+          <span class="endpoint-path">/api/records/{id}</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Soft-delete a record</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Records are never permanently removed. A <code style="font-family:var(--mono);font-size:11px;color:var(--amber)">deletedAt</code> timestamp is set instead. All list/get queries filter on <code style="font-family:var(--mono);font-size:11px;color:var(--amber)">deletedAt IS NULL</code> — standard practice for financial data to maintain an audit trail.</p>
+          <div class="body-label">Responses</div>
+          <div class="response-row"><span class="status-code s200">200</span><span class="response-desc">Record soft-deleted successfully</span></div>
+          <div class="response-row"><span class="status-code s404">404</span><span class="response-desc">Record not found</span></div>
+          <div class="response-row"><span class="status-code s403">403</span><span class="response-desc">Forbidden — requires ADMIN role</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         DASHBOARD
+    ══════════════════════════════════════ -->
+    <div class="endpoint-group" id="dashboard">
+      <div class="section-heading">
+        <h2>Dashboard & Analytics</h2>
+        <span class="section-count">5 endpoints</span>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="endpoint-card" id="ep-summary">
+        <div class="endpoint-header" onclick="toggle('ep-summary')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/dashboard/summary</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Total income, expenses, net balance</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Query Parameters</div>
+              <table class="params-table">
+                <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+                <tr><td class="param-name">dateFrom</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">dateTo</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="body-label">Response 200</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>{
+  <span class="k">"success"</span>: <span class="v">true</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"totalIncome"</span>: <span class="n">18500.00</span>,
+    <span class="k">"totalExpenses"</span>: <span class="n">1920.00</span>,
+    <span class="k">"netBalance"</span>: <span class="n">16580.00</span>,
+    <span class="k">"recordCount"</span>: <span class="n">10</span>
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div class="endpoint-card" id="ep-cat">
+        <div class="endpoint-header" onclick="toggle('ep-cat')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/dashboard/categories</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Category-wise breakdown totals</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Query Parameters</div>
+              <table class="params-table">
+                <tr><th>Param</th><th>Type</th><th></th></tr>
+                <tr><td class="param-name">type</td><td class="param-type">INCOME | EXPENSE</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">dateFrom</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+                <tr><td class="param-name">dateTo</td><td class="param-type">YYYY-MM-DD</td><td class="param-opt">optional</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="body-label">Response 200</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>[{
+  <span class="k">"category"</span>: <span class="s">"Salary"</span>,
+  <span class="k">"type"</span>: <span class="s">"INCOME"</span>,
+  <span class="k">"count"</span>: <span class="n">3</span>,
+  <span class="k">"total"</span>: <span class="n">15000.00</span>
+}, {
+  <span class="k">"category"</span>: <span class="s">"Rent"</span>,
+  <span class="k">"type"</span>: <span class="s">"EXPENSE"</span>,
+  <span class="k">"count"</span>: <span class="n">3</span>,
+  <span class="k">"total"</span>: <span class="n">900.00</span>
+}]</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY -->
+      <div class="endpoint-card" id="ep-monthly">
+        <div class="endpoint-header" onclick="toggle('ep-monthly')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/dashboard/trends/monthly</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Monthly income vs expense trends</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Query Parameters</div>
+              <table class="params-table">
+                <tr><th>Param</th><th>Type</th><th></th></tr>
+                <tr><td class="param-name">year</td><td class="param-type">integer</td><td class="param-opt">optional</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="body-label">Response 200</div>
+              <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+                <pre>[{
+  <span class="k">"month"</span>: <span class="s">"2024-01"</span>,
+  <span class="k">"income"</span>: <span class="n">5000.00</span>,
+  <span class="k">"expenses"</span>: <span class="n">640.00</span>,
+  <span class="k">"net"</span>: <span class="n">4360.00</span>
+}]</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY -->
+      <div class="endpoint-card" id="ep-weekly">
+        <div class="endpoint-header" onclick="toggle('ep-weekly')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/dashboard/trends/weekly</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Weekly trends for last N weeks</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Query Parameters</div>
+          <table class="params-table" style="max-width:320px;">
+            <tr><th>Param</th><th>Type</th><th></th></tr>
+            <tr><td class="param-name">weeks</td><td class="param-type">integer</td><td class="param-opt">default: 12</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- RECENT -->
+      <div class="endpoint-card" id="ep-recent">
+        <div class="endpoint-header" onclick="toggle('ep-recent')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/dashboard/recent</span>
+          <span class="role-badge rb-any">ANY AUTH</span>
+          <span class="endpoint-summary">Most recent financial activity</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Query Parameters</div>
+          <table class="params-table" style="max-width:320px;">
+            <tr><th>Param</th><th>Type</th><th></th></tr>
+            <tr><td class="param-name">limit</td><td class="param-type">integer</td><td class="param-opt">default: 10</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         USERS
+    ══════════════════════════════════════ -->
+    <div class="endpoint-group" id="users">
+      <div class="section-heading">
+        <h2>User Management</h2>
+        <span class="section-count">4 endpoints — Admin only</span>
+      </div>
+
+      <!-- LIST USERS -->
+      <div class="endpoint-card" id="ep-users">
+        <div class="endpoint-header" onclick="toggle('ep-users')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/users</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">List all users (paginated)</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Query Parameters</div>
+          <table class="params-table" style="max-width:400px;margin-bottom:16px;">
+            <tr><th>Param</th><th>Type</th><th></th></tr>
+            <tr><td class="param-name">page</td><td class="param-type">integer</td><td class="param-opt">default: 0</td></tr>
+            <tr><td class="param-name">size</td><td class="param-type">integer</td><td class="param-opt">default: 20</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CREATE USER -->
+      <div class="endpoint-card" id="ep-createuser">
+        <div class="endpoint-header" onclick="toggle('ep-createuser')">
+          <span class="method-badge badge-post">POST</span>
+          <span class="endpoint-path">/api/users</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Create user with any role</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Request Body</div>
+          <div class="code-block" style="max-width:400px;">
+            <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+            <pre>{
+  <span class="k">"name"</span>: <span class="s">"New Analyst"</span>,
+  <span class="k">"email"</span>: <span class="s">"analyst2@example.com"</span>,
+  <span class="k">"password"</span>: <span class="s">"Password@123"</span>,
+  <span class="k">"role"</span>: <span class="s">"ANALYST"</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- GET USER -->
+      <div class="endpoint-card" id="ep-getuser">
+        <div class="endpoint-header" onclick="toggle('ep-getuser')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/api/users/{id}</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Get user by ID</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="response-row"><span class="status-code s200">200</span><span class="response-desc">User found</span></div>
+          <div class="response-row"><span class="status-code s404">404</span><span class="response-desc">User not found</span></div>
+          <div class="response-row"><span class="status-code s403">403</span><span class="response-desc">Forbidden — non-admin users</span></div>
+        </div>
+      </div>
+
+      <!-- PATCH USER -->
+      <div class="endpoint-card" id="ep-patchuser">
+        <div class="endpoint-header" onclick="toggle('ep-patchuser')">
+          <span class="method-badge badge-patch">PATCH</span>
+          <span class="endpoint-path">/api/users/{id}</span>
+          <span class="role-badge rb-admin">ADMIN</span>
+          <span class="endpoint-summary">Update user name, role, or status</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Request Body (all fields optional)</div>
+          <div class="code-block" style="max-width:400px;">
+            <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+            <pre>{
+  <span class="k">"name"</span>: <span class="s">"Updated Name"</span>,
+  <span class="k">"role"</span>: <span class="s">"ANALYST"</span>,
+  <span class="k">"active"</span>: <span class="v">false</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEALTH -->
+      <div class="endpoint-card" id="ep-health" style="margin-top:32px;">
+        <div class="endpoint-header" onclick="toggle('ep-health')">
+          <span class="method-badge badge-get">GET</span>
+          <span class="endpoint-path">/health</span>
+          <span class="role-badge rb-public">PUBLIC</span>
+          <span class="endpoint-summary">Health check endpoint</span>
+          <span class="endpoint-chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="body-label">Response 200</div>
+          <div class="code-block" style="max-width:420px;">
+            <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+            <pre>{
+  <span class="k">"status"</span>: <span class="s">"UP"</span>,
+  <span class="k">"service"</span>: <span class="s">"Finance Dashboard Backend"</span>,
+  <span class="k">"timestamp"</span>: <span class="s">"2026-04-06T10:33:35"</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESPONSE ENVELOPE ── -->
+    <div class="divider"></div>
+    <div class="section-heading">
+      <h2>Standard Response Envelope</h2>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Every response (success or error) uses the same <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">ApiResponse&lt;T&gt;</code> wrapper.</p>
+    <div class="body-grid" style="margin-bottom:32px;">
+      <div>
+        <div class="body-label">Success Response</div>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+          <pre>{
+  <span class="k">"success"</span>: <span class="v">true</span>,
+  <span class="k">"message"</span>: <span class="s">"OK"</span>,
+  <span class="k">"data"</span>: { <span class="c">/* payload */</span> },
+  <span class="k">"timestamp"</span>: <span class="s">"2026-04-06T10:30:46"</span>
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div class="body-label">Error Response</div>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copy(this)">Copy</button></div>
+          <pre>{
+  <span class="k">"success"</span>: <span class="v">false</span>,
+  <span class="k">"message"</span>: <span class="s">"Validation failed"</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"amount"</span>: <span class="s">"Amount must be > 0"</span>,
+    <span class="k">"date"</span>: <span class="s">"Date is required"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:24px 0 40px;color:var(--muted);font-family:var(--mono);font-size:11px;">
+      Finance Dashboard API v1.0.0 · Spring Boot 3.2.3 · Java 17 · Deployed on Render
+      <br><span style="color:var(--dim)">https://finance-spring-project.onrender.com/swagger-ui.html</span>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function toggle(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copy(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // Open login by default
+  document.getElementById('ep-login').classList.add('open');
+  document.getElementById('ep-summary').classList.add('open');
+  document.getElementById('ep-list').classList.add('open');
+</script>
+</body>
+</html>
